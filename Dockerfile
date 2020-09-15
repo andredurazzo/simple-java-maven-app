@@ -1,1 +1,1 @@
-FROM adoptopenjdk/maven-openjdk11
+FROM amaro:3.6.3-amazoncorretto-11

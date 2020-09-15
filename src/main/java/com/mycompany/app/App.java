@@ -17,8 +17,7 @@ public class App
     }
 
     private final String getMessage() {
-      var text = " Java 11";
-        return message.concat(text);
+        return message;
     }
 
 }
