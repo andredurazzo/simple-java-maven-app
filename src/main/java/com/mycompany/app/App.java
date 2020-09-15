@@ -1,5 +1,7 @@
 package com.mycompany.app;
 
+import java.util.Optional;
+
 /**
  * Hello world!
  */
@@ -15,7 +17,8 @@ public class App
     }
 
     private final String getMessage() {
-        return message;
+      var text = " Java 11";
+        return message.concat(text);
     }
 
 }
