@@ -2,7 +2,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import hudson.tasks.test.AbstractTestResultAction;
 
-def selectedNode = "${env.BUILD_BRANCH}" == 'master' && "${env.ENVIRONMENT}" == 'prd' ? 'prd-node' : 'master'
+def selectedNode = "${env.BUILD_BRANCH}" == 'develop' ? 'develop node' : 'production'
 
 pipeline {
     agent {
