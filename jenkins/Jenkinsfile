@@ -92,11 +92,11 @@ pipeline {
 //            }
 //        }
     }
-    post {
-        failure {
-            // notify users when the Pipeline fails
-            echo "Failed stage name: ${STAGE_NAME}"
-            echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
-        }
-    }
+//    post {
+//        failure {
+//            // notify users when the Pipeline fails
+//            echo "Failed stage name: ${STAGE_NAME}"
+//            echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
+//        }
+//    }
 }
