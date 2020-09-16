@@ -2,7 +2,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import hudson.tasks.test.AbstractTestResultAction;
 
-def selectedNode = "${env.BUILD_BRANCH}" == 'develop' ? 'develop node' : 'production'
+def selectedNode = "${env.BUILD_BRANCH}" == 'master' && "${env.ENVIRONMENT}" == 'prd' ? 'prd-node' : 'master'
 
 pipeline {
     agent {
@@ -14,13 +14,30 @@ pipeline {
     stages {
         stage('initial'){
           steps{
-               echo selectedNode
+              cleanWs()
           }
         }
-        stage('Build') {
+        stage("git") {
+            steps {
+                checkout scm
+            }
+        }
+        stage('build') {
             steps {
                 sh 'java -version'
+                sh 'exit 1'
                 sh 'mvn -B -DskipTests clean package'
+            }
+            post {
+                failure {
+                    // notify users when the Pipeline fails
+                    echo 'Compile stage failed'
+                    error('Build is aborted due to failure of build stage')
+
+                    mail to: 'andredurazzo@gmail.com',
+                            subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+                            body: "Something is wrong with ${env.BUILD_URL}"
+                }
             }
         }
         stage('Test') {
@@ -42,6 +59,14 @@ pipeline {
             steps {
                 sh './jenkins/scripts/deliver.sh'
             }
+        }
+    }
+    post {
+        failure {
+            // notify users when the Pipeline fails
+            mail to: 'andredurazzo@gmail.com',
+                    subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+                    body: "Something is wrong with ${env.BUILD_URL}"
         }
     }
 }
