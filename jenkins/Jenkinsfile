@@ -17,11 +17,11 @@ pipeline {
         timestamps()
     }
 
-    environment {
-        //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
-        IMAGE = readMavenPom().getArtifactId()
-        VERSION = readMavenPom().getVersion()
-    }
+//    environment {
+//        //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
+//        IMAGE = readMavenPom().getArtifactId()
+//        VERSION = readMavenPom().getVersion()
+//    }
 
     stages {
         stage("git") {
@@ -72,22 +72,22 @@ pipeline {
             }
         }
 
-        stage('Build and Publish Image') {
-            when {
-                branch 'master12312'  //only run these steps on the master12312 branch
-            }
-            steps {
-                /*
-                 * Multiline strings can be used for larger scripts. It is also possible to put scripts in your shared library
-                 * and load them with 'libaryResource'
-                 */
-                sh """
-                      docker build -t ${IMAGE} .
-                      docker tag ${IMAGE} ${IMAGE}:${VERSION}
-                      docker push ${IMAGE}:${VERSION}
-                   """
-            }
-        }
+//        stage('Build and Publish Image') {
+//            when {
+//                branch 'master12312'  //only run these steps on the master12312 branch
+//            }
+//            steps {
+//                /*
+//                 * Multiline strings can be used for larger scripts. It is also possible to put scripts in your shared library
+//                 * and load them with 'libaryResource'
+//                 */
+//                sh """
+//                      docker build -t ${IMAGE} .
+//                      docker tag ${IMAGE} ${IMAGE}:${VERSION}
+//                      docker push ${IMAGE}:${VERSION}
+//                   """
+//            }
+//        }
     }
     post {
         failure {
