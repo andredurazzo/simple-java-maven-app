@@ -52,6 +52,16 @@ pipeline {
                 success {
                     junit 'target/surefire-reports/*.xml'
                 }
+
+                failure {
+                    failureMessage()
+                }
+                unstable{
+                    echo "unstable stage name: ${STAGE_NAME}"
+                }
+                unsuccessful{
+                    echo "unsuccessful stage name: ${STAGE_NAME}"
+                }
             }
         }
 
@@ -71,7 +81,6 @@ pipeline {
                 sh './jenkins/scripts/deliver.sh'
             }
         }
-
 //        stage('Build and Publish Image') {
 //            when {
 //                branch 'master12312'  //only run these steps on the master12312 branch
@@ -89,17 +98,9 @@ pipeline {
 //            }
 //        }
     }
-    post {
-        failure {
-            // notify users when the Pipeline fails
-            echo "Failed stage name: ${STAGE_NAME}"
-            echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
-        }
-        unstable{
-            echo "unstable stage name: ${STAGE_NAME}"
-        }
-        unsuccessful{
-            echo "unsuccessful stage name: ${STAGE_NAME}"
-        }
-    }
+}
+def failureMessage(){
+    // notify users when the Pipeline fails
+    echo "Failed stage name: ${STAGE_NAME}"
+    echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
 }
