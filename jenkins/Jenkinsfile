@@ -11,6 +11,10 @@ pipeline {
             args '-v /root/.m2:/root/.m2'
         }
     }
+    // using the Timestamper plugin we can add timestamps to the console log
+    options {
+        timestamps()
+    }
     stages {
         stage("git") {
             steps {
@@ -36,7 +40,7 @@ pipeline {
                     echo 'Error test'
                     error('Build is aborted due to failure of test stage')
 
-                    mail bcc: '', body: "<b>Example</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "andredurazzo@gmail.com";
+                    echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
                 }
             }
         }
@@ -54,7 +58,7 @@ pipeline {
     post {
         failure {
             // notify users when the Pipeline fails
-            mail bcc: '', body: "<b>Example</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', from: '', mimeType: 'text/html', replyTo: '', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "andredurazzo@gmail.com";
+            echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
         }
     }
 }
