@@ -1,3 +1,9 @@
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import hudson.tasks.test.AbstractTestResultAction;
+
+def selectedNode = "${env.BUILD_BRANCH}" == 'master' && "${env.ENVIRONMENT}" == 'prd' ? 'prd-node' : 'master'
+
 pipeline {
     agent {
         docker {
@@ -6,6 +12,9 @@ pipeline {
         }
     }
     stages {
+        stage('initial'){
+          echo selectedNode
+        }
         stage('Build') {
             steps {
                 sh 'java -version'
@@ -21,6 +30,9 @@ pipeline {
                     junit 'target/surefire-reports/*.xml'
                 }
             }
+        }
+        stage('Sonar'){
+
         }
         stage('Deliver') {
             steps {
