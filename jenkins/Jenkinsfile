@@ -52,9 +52,6 @@ pipeline {
                 success {
                     junit 'target/surefire-reports/*.xml'
                 }
-                failure {
-                    error('Stopping early…')
-                }
             }
         }
 
@@ -92,11 +89,12 @@ pipeline {
 //            }
 //        }
     }
-//    post {
-//        failure {
-//            // notify users when the Pipeline fails
-//            echo "Failed stage name: ${STAGE_NAME}"
-//            echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
-//        }
-//    }
+    post {
+        failure {
+            // notify users when the Pipeline fails
+            echo "Failed stage name: ${STAGE_NAME}"
+            echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
+            sh 'exit 1'
+        }
+    }
 }
