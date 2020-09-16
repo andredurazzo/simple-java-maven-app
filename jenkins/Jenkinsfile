@@ -6,101 +6,100 @@ def selectedNode = "${env.BUILD_BRANCH}" == 'master' && "${env.ENVIRONMENT}" == 
 def STAGE_NAME ="";
 
 pipeline {
-    try {
-        agent {
-            docker {
-                image 'maven:3.6.3-amazoncorretto-11'
-                args '-v /root/.m2:/root/.m2'
+    agent {
+        docker {
+            image 'maven:3.6.3-amazoncorretto-11'
+            args '-v /root/.m2:/root/.m2'
+        }
+    }
+    // using the Timestamper plugin we can add timestamps to the console log
+    options {
+        timestamps()
+    }
+
+//    environment {
+//        //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
+//        IMAGE = readMavenPom().getArtifactId()
+//        VERSION = readMavenPom().getVersion()
+//    }
+
+    stages {
+        stage("git") {
+            steps {
+                script{
+                    STAGE_NAME=env.STAGE_NAME
+                }
+                checkout scm
             }
         }
-        // using the Timestamper plugin we can add timestamps to the console log
-        options {
-            timestamps()
+        stage('build') {
+            steps {
+                script{
+                    STAGE_NAME=env.STAGE_NAME
+                }
+                sh 'java -version'
+                sh 'mvn -B -DskipTests clean package'
+            }
+        }
+        stage('Test') {
+            steps {
+                script{
+                    STAGE_NAME=env.STAGE_NAME
+                }
+                sh 'mvn test'
+            }
+            post {
+                success {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
         }
 
-        //    environment {
-        //        //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
-        //        IMAGE = readMavenPom().getArtifactId()
-        //        VERSION = readMavenPom().getVersion()
-        //    }
-
-        stages {
-            stage("git") {
-                steps {
-                    script {
-                        STAGE_NAME = env.STAGE_NAME
-                    }
-                    checkout scm
-                }
-            }
-            stage('build') {
-                steps {
-                    script {
-                        STAGE_NAME = env.STAGE_NAME
-                    }
-                    sh 'java -version'
-                    sh 'mvn -B -DskipTests clean package'
-                }
-            }
-            stage('Test') {
-                steps {
-                    script {
-                        STAGE_NAME = env.STAGE_NAME
-                    }
-                    sh 'mvn test'
-                }
-                post {
-                    success {
-                        junit 'target/surefire-reports/*.xml'
-                    }
-                }
-            }
-
-            stage('Sonar') {
-                steps {
-                    script {
-                        STAGE_NAME = env.STAGE_NAME
-                    }
-                    echo 'sonar stage'
-                }
-            }
-            stage('Deliver') {
-                steps {
-                    script {
-                        STAGE_NAME = env.STAGE_NAME
-                    }
-                    sh './jenkins/scripts/deliver.sh'
-                }
-            }
-
-            //        stage('Build and Publish Image') {
-            //            when {
-            //                branch 'master12312'  //only run these steps on the master12312 branch
-            //            }
-            //            steps {
-            //                /*
-            //                 * Multiline strings can be used for larger scripts. It is also possible to put scripts in your shared library
-            //                 * and load them with 'libaryResource'
-            //                 */
-            //                sh """
-            //                      docker build -t ${IMAGE} .
-            //                      docker tag ${IMAGE} ${IMAGE}:${VERSION}
-            //                      docker push ${IMAGE}:${VERSION}
-            //                   """
-            //            }
-            //        }
+        stage('Sonar'){
+          steps {
+              script{
+                  STAGE_NAME=env.STAGE_NAME
+              }
+              echo 'sonar stage'
+          }
         }
-        //    post {
-        //        failure {
-        //            // notify users when the Pipeline fails
-        //            echo "Failed stage name: ${STAGE_NAME}"
-        //            echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
-        //            sh 'exit 1'
-        //        }
-        //    }
-    } catch(e){
-        echo "Failed stage name: ${STAGE_NAME}"
-        echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
-        throw e;
+        stage('Deliver') {
+            steps {
+                script{
+                    STAGE_NAME=env.STAGE_NAME
+                }
+                sh './jenkins/scripts/deliver.sh'
+            }
+        }
+
+//        stage('Build and Publish Image') {
+//            when {
+//                branch 'master12312'  //only run these steps on the master12312 branch
+//            }
+//            steps {
+//                /*
+//                 * Multiline strings can be used for larger scripts. It is also possible to put scripts in your shared library
+//                 * and load them with 'libaryResource'
+//                 */
+//                sh """
+//                      docker build -t ${IMAGE} .
+//                      docker tag ${IMAGE} ${IMAGE}:${VERSION}
+//                      docker push ${IMAGE}:${VERSION}
+//                   """
+//            }
+//        }
+    }
+    post {
+        failure {
+            // notify users when the Pipeline fails
+            echo "Failed stage name: ${STAGE_NAME}"
+            echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
+        }
+        unstable{
+            echo "unstable stage name: ${STAGE_NAME}"
+        }
+        unsuccessful{
+            echo "unsuccessful stage name: ${STAGE_NAME}"
+        }
     }
 }
