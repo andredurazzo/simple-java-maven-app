@@ -3,7 +3,7 @@ import net.sf.json.JSONObject;
 import hudson.tasks.test.AbstractTestResultAction;
 
 def selectedNode = "${env.BUILD_BRANCH}" == 'master' && "${env.ENVIRONMENT}" == 'prd' ? 'prd-node' : 'master'
-def STAGE_NAME
+def STAGE_NAME ="";
 
 pipeline {
     agent {
@@ -19,20 +19,26 @@ pipeline {
     stages {
         stage("git") {
             steps {
-                STAGE_NAME=env.STAGE_NAME
+                script{
+                    STAGE_NAME=env.STAGE_NAME
+                }
                 checkout scm
             }
         }
         stage('build') {
             steps {
-                STAGE_NAME=env.STAGE_NAME
+                script{
+                    STAGE_NAME=env.STAGE_NAME
+                }
                 sh 'java -version'
                 sh 'mvn -B -DskipTests clean package'
             }
         }
         stage('Test') {
             steps {
-                STAGE_NAME=env.STAGE_NAME
+                script{
+                    STAGE_NAME=env.STAGE_NAME
+                }
                 sh 'mvn test'
             }
             post {
@@ -41,14 +47,20 @@ pipeline {
                 }
             }
         }
+
         stage('Sonar'){
-            STAGE_NAME=env.STAGE_NAME
           steps {
-            echo 'sonar stage'
+              script{
+                  STAGE_NAME=env.STAGE_NAME
+              }
+              echo 'sonar stage'
           }
         }
         stage('Deliver') {
             steps {
+                script{
+                    STAGE_NAME=env.STAGE_NAME
+                }
                 sh './jenkins/scripts/deliver.sh'
             }
         }
@@ -56,7 +68,7 @@ pipeline {
     post {
         failure {
             // notify users when the Pipeline fails
-            echo "Failed stage name: ${FAILED_STAGE}"
+            echo "Failed stage name: ${STAGE_NAME}"
             echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
         }
     }
