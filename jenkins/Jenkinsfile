@@ -22,8 +22,6 @@ pipeline {
 //        IMAGE = readMavenPom().getArtifactId()
 //        VERSION = readMavenPom().getVersion()
 //    }
-    stage("tesadas"){
-        try{
 
     stages {
         stage("git") {
@@ -53,13 +51,6 @@ pipeline {
             post {
                 success {
                     junit 'target/surefire-reports/*.xml'
-                }
-
-                failure {
-                    failureMessage()
-                }
-                unsuccessful{
-                    echo "unsuccessful stage name: ${STAGE_NAME}"
                 }
             }
         }
@@ -97,8 +88,9 @@ pipeline {
 //            }
 //        }
     }
-        } catch(e){
-            throw e
+    post {
+        failure {
+            failureMessage()
         }
     }
 }
