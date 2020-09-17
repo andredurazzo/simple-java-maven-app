@@ -3,8 +3,6 @@ import net.sf.json.JSONObject;
 import hudson.tasks.test.AbstractTestResultAction;
 
 def selectedNode = "${env.BUILD_BRANCH}" == 'master' && "${env.ENVIRONMENT}" == 'prd' ? 'prd-node' : 'master'
-def STAGE_NAME ="";
-
 pipeline {
     agent {
         docker {
@@ -26,49 +24,52 @@ pipeline {
     stages {
         stage("git") {
             steps {
-                script{
-                    STAGE_NAME=env.STAGE_NAME
-                }
                 checkout scm
+            }
+            post {
+                failure{
+                    failureMessage()
+                }
             }
         }
         stage('build') {
             steps {
-                script{
-                    STAGE_NAME=env.STAGE_NAME
-                }
                 sh 'java -version'
                 sh 'mvn -B -DskipTests clean package'
+            }
+            post {
+                failure{
+                    failureMessage()
+                }
             }
         }
         stage('Test') {
             steps {
-                script{
-                    STAGE_NAME=env.STAGE_NAME
-                }
                 sh 'mvn test'
             }
             post {
                 success {
                     junit 'target/surefire-reports/*.xml'
                 }
+                failure{
+                    failureMessage()
+                }
             }
         }
 
         stage('Sonar'){
           steps {
-              script{
-                  STAGE_NAME=env.STAGE_NAME
-              }
               echo 'sonar stage'
           }
         }
         stage('Deliver') {
             steps {
-                script{
-                    STAGE_NAME=env.STAGE_NAME
-                }
                 sh './jenkins/scripts/deliver.sh'
+            }
+            post {
+                failure{
+                    failureMessage()
+                }
             }
         }
 //        stage('Build and Publish Image') {
@@ -88,15 +89,9 @@ pipeline {
 //            }
 //        }
     }
-    post {
-        failure {
-            failureMessage()
-        }
-    }
 }
 
 def failureMessage(){
     // notify users when the Pipeline fails
-    echo "Failed stage name: ${STAGE_NAME}"
     echo  "Failed Pipeline: ${currentBuild.fullDisplayName} Something is wrong with ${env.BUILD_URL}"
 }
