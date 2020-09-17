@@ -15,6 +15,7 @@ pipeline {
     // using the Timestamper plugin we can add timestamps to the console log
     options {
         timestamps()
+        skipStagesAfterUnstable()
     }
 
 //    environment {
@@ -23,7 +24,7 @@ pipeline {
 //        VERSION = readMavenPom().getVersion()
 //    }
 
-//    stages {
+    stages {
         stage("git") {
             steps {
                 script{
@@ -94,7 +95,7 @@ pipeline {
 //                   """
 //            }
 //        }
-//    }
+    }
 }
 
 def failureMessage(){
