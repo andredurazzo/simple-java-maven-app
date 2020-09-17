@@ -73,6 +73,9 @@ pipeline {
             }
         }
 //        stage('Build and Publish Image') {
+            agent {
+                dockerfile true
+            }
 //            when {
 //                branch 'master12312'  //only run these steps on the master12312 branch
 //            }
