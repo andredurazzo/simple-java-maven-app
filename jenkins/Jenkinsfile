@@ -15,7 +15,6 @@ pipeline {
     // using the Timestamper plugin we can add timestamps to the console log
     options {
         timestamps()
-        skipStagesAfterUnstable()
     }
 
 //    environment {
@@ -23,6 +22,8 @@ pipeline {
 //        IMAGE = readMavenPom().getArtifactId()
 //        VERSION = readMavenPom().getVersion()
 //    }
+    stage("tesadas"){
+        try{
 
     stages {
         stage("git") {
@@ -95,6 +96,10 @@ pipeline {
 //                   """
 //            }
 //        }
+    }
+        } catch(e){
+            throw e
+        }
     }
 }
 
