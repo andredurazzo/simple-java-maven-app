@@ -1,5 +1,8 @@
 package com.mycompany.app;
 
+
+import java.util.stream.Stream;
+
 /**
  * Hello world!
  */
@@ -9,7 +12,7 @@ public class App
   public App() {}
 
     public static void main(String[] args) {
-        System.out.println(new App().getMessage());
+      System.out.println(new App().getMessage());
     }
 
     private String getMessage() {
