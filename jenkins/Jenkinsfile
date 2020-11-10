@@ -1,7 +1,7 @@
 def selectedNode = "${env.BUILD_BRANCH}" == 'master' && "${env.ENVIRONMENT}" == 'prd' ? 'prd-node' : 'master'
 pipeline {
     agent {
-        dockerfile true
+        //dockerfile true
         docker {
             image 'maven:3.6.3-amazoncorretto-11'
 
